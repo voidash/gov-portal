@@ -11,7 +11,7 @@ export function LanguageSwitch({ locale, label }: { locale: Locale; label: strin
   const rest = pathname.split("/").filter(Boolean).slice(1).join("/");
 
   return (
-    <span className="lang-switch" role="group" aria-label={label}>
+    <span className="lang-switch" title={label}>
       {LOCALES.map((entry, index) => (
         <Fragment key={entry}>
           {index > 0 ? (

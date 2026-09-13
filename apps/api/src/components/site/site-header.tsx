@@ -25,6 +25,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             target="_blank"
             rel="noopener noreferrer"
           >
+            {/* biome-ignore lint/performance/noImgElement: the emblem is a static government asset with srcset, not a dynamic image */}
             <img
               className="dn-gov-strip__emblem"
               src="/assets/devnepal/images/emblem-of-nepal-60.png"

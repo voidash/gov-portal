@@ -36,7 +36,7 @@ export default async function IssueDetailPage({
   }
 
   return (
-    <div className="dn-container dn-github-issue" aria-labelledby="issue-title">
+    <section className="dn-container dn-github-issue" aria-labelledby="issue-title">
       <nav className="dn-breadcrumbs" aria-label={dict.issues.breadcrumbProject}>
         <Link href={localePath(activeLocale, "/issues")}>{dict.issue.breadcrumbProjects}</Link>
         <span aria-hidden="true">/</span>
@@ -84,6 +84,6 @@ export default async function IssueDetailPage({
           <p>{dict.issue.sourceNote}</p>
         </footer>
       </article>
-    </div>
+    </section>
   );
 }

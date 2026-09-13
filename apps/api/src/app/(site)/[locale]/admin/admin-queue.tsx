@@ -106,7 +106,7 @@ export function AdminQueue({ dict }: { dict: Dictionary }) {
 
   return (
     <div>
-      <div className="dn-catalog-quick" aria-label={dict.admin.title}>
+      <div className="dn-catalog-quick">
         <span>{dict.admin.title}</span>
         {TABS.map((entry) => (
           <a

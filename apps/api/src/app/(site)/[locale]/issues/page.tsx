@@ -103,7 +103,6 @@ export default async function IssuesPage({
           className="filterbar catalog-filter"
           method="get"
           action={localePath(activeLocale, "/issues")}
-          role="search"
         >
           <div className="filterbar__query">
             <label htmlFor="issue-search">{dict.issues.searchLabel}</label>
@@ -131,7 +130,7 @@ export default async function IssuesPage({
           </button>
         </form>
 
-        <div className="dn-catalog-quick" aria-label={dict.issues.filterBy}>
+        <div className="dn-catalog-quick">
           <span>{dict.issues.filterBy}</span>
           {labels.map((facet) => (
             <Link

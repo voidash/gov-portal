@@ -54,7 +54,7 @@ export default async function MemberDetailPage({
   const isPublic = member.status === "approved";
 
   return (
-    <div className="dn-container dn-github-profile" aria-labelledby="profile-heading">
+    <section className="dn-container dn-github-profile" aria-labelledby="profile-heading">
       {!isPublic && isOwner ? (
         <div className="dn-state-banner is-attention" role="status">
           {dict.profile.status[member.status]}
@@ -131,6 +131,6 @@ export default async function MemberDetailPage({
       <p className="dn-github-profile__report">
         <Link href={localePath(activeLocale, "/members")}>← {dict.member.back}</Link>
       </p>
-    </div>
+    </section>
   );
 }

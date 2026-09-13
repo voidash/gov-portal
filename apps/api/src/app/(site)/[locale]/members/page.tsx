@@ -73,7 +73,6 @@ export default async function MembersPage({
           className="filterbar catalog-filter"
           method="get"
           action={localePath(activeLocale, "/members")}
-          role="search"
         >
           <div className="filterbar__query">
             <label htmlFor="member-search">{dict.members.searchLabel}</label>
@@ -136,7 +135,7 @@ export default async function MembersPage({
                   <p className="public-discovery__meta">{member.location}</p>
                 ) : null}
                 {member.skills.length > 0 ? (
-                  <div className="dn-labels" aria-label={dict.member.skills}>
+                  <div className="dn-labels">
                     {member.skills.map((entry) => (
                       <span key={entry} className="Label">
                         {entry}
