@@ -86,26 +86,54 @@ Keep branches short-lived and rebase on `main` when it moves. A PR that touches
 `packages/shared` needs a reviewer from each side. Branches are deleted
 automatically after merge.
 
-## Local development
+## Scaffolding the project
 
-Prerequisites: [Bun](https://bun.sh), Docker (colima works), and Git.
+From an empty machine to a running portal. Prerequisites:
+[Bun](https://bun.sh) ≥ 1.4, Docker (colima works), Git, and the disk space for
+the Postgres image (~2 GB the first time).
+
+### 1. Clone and bootstrap
 
 ```sh
 git clone git@github.com:voidash/gov-portal.git
 cd gov-portal
 bun run setup
-bun run dev          # UI + API → http://localhost:3000/en
 ```
 
-`bun run setup` is safe to rerun and bootstraps everything: env files with a
-generated `AUTH_SECRET`, PostgreSQL via Docker Compose, migrations, and seed
-data (members, the project, sample issues).
+`bun run setup` is idempotent and does the whole bootstrap:
 
-Without GitHub credentials the public pages work fully against the seed. The
-frontend guide — including how to test authenticated/admin screens without
-GitHub — is in [`docs/frontend.md`](docs/frontend.md).
+1. writes `apps/api/.env.local` from `.env.example` with a freshly generated
+   `AUTH_SECRET` (never overwrites an existing file)
+2. starts PostgreSQL with Docker Compose and waits until it is healthy
+3. installs the workspace dependencies with Bun
+4. applies the Drizzle migrations
+5. seeds the database: six members (every moderation state), the project row,
+   and eight sample issues
 
-### GitHub sign-in (only needed to test real auth, profiles, and admin)
+Nothing else is required — the design assets, translations, fonts, and vendored
+styles all ship with the repository.
+
+### 2. Run
+
+```sh
+bun run dev          # UI + API on one port → http://localhost:3000/en
+```
+
+### 3. Verify the scaffold
+
+| Check | Expected |
+|---|---|
+| `curl localhost:3000/health` | `{"status":"ok"}` |
+| http://localhost:3000/en | home page with the state strip, hero, and project card |
+| http://localhost:3000/ne | the same page in Nepali |
+| http://localhost:3000/en/issues | 8 seeded issues; label filter and search work |
+| http://localhost:3000/en/members | 3 approved members; pending/rejected/hidden are absent |
+| `curl 'localhost:3000/project/issues?perPage=2'` | JSON with `"total": 8` |
+| `bun run test` | the full Vitest suite passes against `refined_test` |
+
+### 4. Optional: sign in with GitHub
+
+Sign-in is required only for the profile editor and admin screens.
 
 1. Create an OAuth App at <https://github.com/settings/developers> → **New OAuth App**
    - Homepage URL: `http://localhost:3000`
@@ -120,7 +148,21 @@ GitHub — is in [`docs/frontend.md`](docs/frontend.md).
 Never commit these values; share team development credentials out-of-band. The
 provider requests **`read:user` only** — email is never requested or stored.
 
-### GitHub issue sync
+### 5. Optional: test signed-in screens without GitHub
+
+`bun run dev:session <githubUsername>` mints a real session cookie for a seeded
+member so the profile editor and admin screens can be tested offline:
+
+```sh
+bun run dev:session nisha-tamang
+```
+
+The command prints the `authjs.session-token` value and the member's GitHub ID.
+Add the cookie in DevTools → Application → Cookies → `http://localhost:3000`,
+and put the printed ID in `ADMIN_GITHUB_IDS` (then restart) for admin access.
+See [`docs/frontend.md`](docs/frontend.md) for the full verification matrix.
+
+### 6. Optional: real GitHub issues
 
 Issues are reconciled from the project's public repository over the REST API
 (no webhook infrastructure needed yet):
@@ -129,7 +171,9 @@ Issues are reconciled from the project's public repository over the REST API
 bun run sync:github      # pulls all issues for voidash/gov-portal, replaces fixtures
 ```
 
-Set `GITHUB_TOKEN` to lift the anonymous rate limit. Real webhooks and
+Set `GITHUB_TOKEN` to lift the anonymous rate limit. The repository currently
+has no open issues, so the list is empty after a sync until issues are created;
+`bun run db:seed` brings the sample fixtures back. Real webhooks and
 contribution indexing are a later phase.
 
 ### Ports
@@ -142,7 +186,9 @@ contribution indexing are a later phase.
 ### Troubleshooting
 
 - `docker compose` fails → Docker isn't running: `colima start` (or start Docker Desktop).
-- Port already in use → `lsof -ti :3000 | xargs kill`
+- Port 3000 already in use → `lsof -ti :3000 | xargs kill`
+- Port 5432 already in use → stop the other Postgres, or change the `db` port
+  mapping in `compose.yaml` and `DATABASE_URL` in `apps/api/.env.local` together.
 - Reset all local data → `docker compose down -v && bun run setup`
 
 ### Environment variables
