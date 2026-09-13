@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { MemberAvatar } from "@/components/ui/member-avatar";
 import { getDictionary, isLocale, type Locale, localePath } from "@/lib/i18n";
 import { toPublicMemberDto } from "@/server/members/dto";
+import { memberMatchesQuery } from "@/server/members/search";
 import { listDirectoryMembers } from "@/server/members/service";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function MembersPage({
   const dict = getDictionary(activeLocale);
   const query = await searchParams;
 
-  const q = typeof query.q === "string" ? query.q.trim().toLowerCase() : "";
+  const q = typeof query.q === "string" ? query.q : "";
   const skill =
     typeof query.skill === "string" && (SKILLS as readonly string[]).includes(query.skill)
       ? query.skill
@@ -40,14 +41,7 @@ export default async function MembersPage({
     if (skill !== undefined && !(member.skills as string[]).includes(skill)) {
       return false;
     }
-    if (q.length === 0) {
-      return true;
-    }
-    return (
-      member.displayName.toLowerCase().includes(q) ||
-      member.githubUsername.toLowerCase().includes(q) ||
-      (member.headline ?? "").toLowerCase().includes(q)
-    );
+    return memberMatchesQuery(member, q);
   });
 
   return (
