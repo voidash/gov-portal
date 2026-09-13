@@ -3,6 +3,16 @@
 The UI lives in the same Next.js app as the REST API: pages under
 `apps/api/src/app/(site)/`, API routes at the app root (`/members`, `/project`, …).
 
+## Design
+
+The visual language is the DevNepal design system, ported from
+`voidash/DevNepal` (branch `demo/minimal-validated-flow`) and served from
+`apps/api/public/assets/devnepal/` — tokens, base, components, devnepal and
+public-discovery stylesheets, the vendored Primer base layer, Inter/Barlow
+fonts, and the emblem assets. See the README in that folder for provenance and
+licences. Use the existing `dn-*`, `btn`, `card`, `Label`, `tag` and
+`field` classes rather than inventing new ones.
+
 ## Environment
 
 Everything the UI needs is created by `bun run setup`. For reference:
@@ -89,6 +99,5 @@ the REST route, then ask for a reviewer from each side.
 
 - Real webhooks and contribution indexing are a later phase; issues come from
   `bun run sync:github` (public REST reconciliation).
-- Dark mode: Primer tokens are wired for light mode only for now.
 - The seed's GitHub usernames are fictional; real avatars appear after real
   sign-ins.

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { IssueRow } from "@/components/ui/issue-row";
-import { TabNav } from "@/components/ui/tab-nav";
 import { getDictionary, isLocale, type Locale, localePath } from "@/lib/i18n";
 import { listIssueLabels, listProjectIssues } from "@/server/projects/service";
 
@@ -48,6 +47,21 @@ export default async function IssuesPage({
     listIssueLabels(),
   ]);
   const totalPages = Math.max(1, Math.ceil(result.total / perPage));
+  const starterCount = labels
+    .filter((facet) => facet.name.toLowerCase().includes("good first"))
+    .reduce((sum, facet) => sum + facet.count, 0);
+
+  function filterHref(nextLabel: string | undefined): string {
+    const search = new URLSearchParams();
+    if (nextLabel !== undefined) {
+      search.set("label", nextLabel);
+    }
+    if (q !== undefined) {
+      search.set("q", q);
+    }
+    const suffix = search.size > 0 ? `?${search.toString()}` : "";
+    return localePath(activeLocale, `/issues${suffix}`);
+  }
 
   function pageHref(target: number): string {
     const search = new URLSearchParams();
@@ -65,95 +79,110 @@ export default async function IssuesPage({
   }
 
   return (
-    <>
-      <div className="dn-page-header">
-        <div className="dn-container">
-          <div className="dn-repo-title">
-            <span>{dict.nav.project}</span>
-            <span className="dn-repo-title-separator">/</span>
-            <strong>{dict.issues.title}</strong>
+    <section className="dn-catalog" aria-labelledby="issues-heading">
+      <div className="container">
+        <header className="dn-catalog-heading">
+          <div>
+            <p className="dn-section-kicker">{dict.issues.kicker}</p>
+            <h1 id="issues-heading">{dict.issues.title}</h1>
+            <p>{dict.issues.lede}</p>
           </div>
-          <TabNav
-            items={[
-              { href: localePath(activeLocale, "/project"), label: dict.project.tabs.overview },
-              { href: localePath(activeLocale, "/issues"), label: dict.project.tabs.issues },
-              { href: localePath(activeLocale, "/about"), label: dict.project.tabs.contribute },
-            ]}
-          />
-        </div>
-      </div>
-
-      <div className="dn-container dn-page-body">
-        <p className="dn-lede">{dict.issues.lede}</p>
+          <dl className="dn-catalog-status-counts" aria-label={dict.issues.title}>
+            <div>
+              <dt>{dict.issues.openLabel}</dt>
+              <dd>{result.total}</dd>
+            </div>
+            <div>
+              <dt>{dict.issues.firstIssueLabel}</dt>
+              <dd>{starterCount}</dd>
+            </div>
+          </dl>
+        </header>
 
         <form
-          className="d-flex flex-wrap gap-2 mt-3 mb-4"
+          className="filterbar catalog-filter"
           method="get"
           action={localePath(activeLocale, "/issues")}
+          role="search"
         >
-          <input
-            className="form-control"
-            type="search"
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder={dict.issues.searchPlaceholder}
-            aria-label={dict.issues.searchPlaceholder}
-            style={{ maxWidth: "20rem" }}
-          />
-          <select
-            className="form-select"
-            name="label"
-            defaultValue={label ?? ""}
-            aria-label={dict.issues.allLabels}
-            style={{ maxWidth: "16rem" }}
-          >
-            <option value="">{dict.issues.allLabels}</option>
-            {labels.map((facet) => (
-              <option key={facet.name} value={facet.name}>
-                {facet.name} ({facet.count})
-              </option>
-            ))}
-          </select>
-          <button className="btn" type="submit">
+          <div className="filterbar__query">
+            <label htmlFor="issue-search">{dict.issues.searchLabel}</label>
+            <input
+              id="issue-search"
+              name="q"
+              type="search"
+              defaultValue={q ?? ""}
+              placeholder={dict.issues.searchPlaceholder}
+            />
+          </div>
+          <div className="filterbar__query">
+            <label htmlFor="issue-label">{dict.issues.filterBy}</label>
+            <select id="issue-label" name="label" defaultValue={label ?? ""}>
+              <option value="">{dict.issues.allLabels}</option>
+              {labels.map((facet) => (
+                <option key={facet.name} value={facet.name}>
+                  {facet.name} ({facet.count})
+                </option>
+              ))}
+            </select>
+          </div>
+          <button className="btn btn--primary filterbar__submit" type="submit">
             {dict.issues.search}
           </button>
         </form>
 
+        <div className="dn-catalog-quick" aria-label={dict.issues.filterBy}>
+          <span>{dict.issues.filterBy}</span>
+          {labels.map((facet) => (
+            <Link
+              key={facet.name}
+              href={filterHref(facet.name)}
+              aria-current={label === facet.name ? "true" : undefined}
+            >
+              {facet.name} <span className="Counter">{facet.count}</span>
+            </Link>
+          ))}
+          {label !== undefined || q !== undefined ? (
+            <Link className="dn-catalog-quick__clear" href={localePath(activeLocale, "/issues")}>
+              {dict.issues.clear}
+            </Link>
+          ) : null}
+        </div>
+
         {result.issues.length === 0 ? (
-          <div className="dn-state-banner">{dict.issues.empty}</div>
+          <div className="dn-empty" role="status">
+            <strong>{dict.issues.emptyTitle}</strong>
+            <p>{dict.issues.emptyBody}</p>
+            <Link className="btn" href={localePath(activeLocale, "/issues")}>
+              {dict.issues.clear}
+            </Link>
+          </div>
         ) : (
-          <div className="dn-issue-list">
+          <div className="dn-issue-list dn-issue-index">
             {result.issues.map((issue) => (
-              <IssueRow key={issue.number} issue={issue} locale={locale} />
+              <IssueRow key={issue.number} issue={issue} locale={activeLocale} />
             ))}
           </div>
         )}
 
         {totalPages > 1 ? (
-          <nav
-            className="d-flex flex-items-center flex-justify-between mt-4"
-            aria-label="Pagination"
-          >
+          <nav className="pagination dn-catalog-pagination" aria-label={dict.issues.title}>
             {page > 1 ? (
-              <Link className="btn btn-sm" href={pageHref(page - 1)}>
+              <Link className="btn btn--secondary" href={pageHref(page - 1)}>
                 ←
               </Link>
-            ) : (
-              <span />
-            )}
-            <span className="dn-lede">
+            ) : null}
+            <span>
               {page} / {totalPages}
             </span>
             {page < totalPages ? (
-              <Link className="btn btn-sm" href={pageHref(page + 1)}>
+              <Link className="btn btn--secondary" href={pageHref(page + 1)}>
                 →
               </Link>
-            ) : (
-              <span />
-            )}
+            ) : null}
           </nav>
         ) : null}
       </div>
-    </>
+    </section>
   );
 }

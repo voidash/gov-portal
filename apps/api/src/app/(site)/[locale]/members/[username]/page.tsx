@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { MemberAvatar } from "@/components/ui/member-avatar";
 import type { Member } from "@/db/schema";
-import { getDictionary, isLocale, localePath } from "@/lib/i18n";
+import { getDictionary, isLocale, type Locale, localePath } from "@/lib/i18n";
 import { getActor } from "@/server/actor";
 import { NotFoundError } from "@/server/errors";
 import { toPublicMemberDto } from "@/server/members/dto";
@@ -20,7 +20,8 @@ export default async function MemberDetailPage({
   if (!isLocale(locale)) {
     notFound();
   }
-  const dict = getDictionary(locale);
+  const activeLocale: Locale = locale;
+  const dict = getDictionary(activeLocale);
 
   const viewer = await getActor();
   let member: Member;
@@ -29,118 +30,106 @@ export default async function MemberDetailPage({
   } catch (error) {
     if (error instanceof NotFoundError) {
       return (
-        <div className="dn-container dn-page-body">
-          <div className="dn-state-banner is-attention">
-            <strong>{dict.member.notFoundTitle}</strong>
-            <p style={{ margin: "0.35rem 0 0" }}>{dict.member.notFoundBody}</p>
+        <section className="section" aria-labelledby="member-not-found">
+          <div className="container">
+            <header className="public-discovery__header">
+              <div>
+                <p className="dn-section-kicker">{dict.member.kicker}</p>
+                <h1 id="member-not-found">{dict.member.notFoundTitle}</h1>
+                <p className="hero__lead">{dict.member.notFoundBody}</p>
+              </div>
+            </header>
+            <Link className="btn" href={localePath(activeLocale, "/members")}>
+              ← {dict.member.back}
+            </Link>
           </div>
-          <p className="mt-3">
-            <Link href={localePath(locale, "/members")}>← {dict.member.back}</Link>
-          </p>
-        </div>
+        </section>
       );
     }
     throw error;
   }
 
+  const profile = toPublicMemberDto(member);
   const isOwner = viewer !== null && viewer.id === member.id;
   const isPublic = member.status === "approved";
-  const profile = toPublicMemberDto(member);
 
   return (
-    <div className="dn-container dn-page-body">
-      <Link className="dn-lede" href={localePath(locale, "/members")}>
-        ← {dict.member.back}
-      </Link>
-
+    <div className="dn-container dn-github-profile" aria-labelledby="profile-heading">
       {!isPublic && isOwner ? (
-        <div className="dn-state-banner is-attention mt-3">
+        <div className="dn-state-banner is-attention" role="status">
           {dict.profile.status[member.status]}
         </div>
       ) : null}
 
-      <header className="dn-profile-header mt-3">
-        <MemberAvatar member={profile} size={96} className="dn-profile-avatar" />
-        <div>
-          <h1 style={{ margin: 0 }}>{member.displayName}</h1>
-          <p className="dn-lede" style={{ margin: "0.25rem 0" }}>
-            <a
-              href={`https://github.com/${member.githubUsername}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              @{member.githubUsername}
-            </a>
-          </p>
-          {member.headline !== null ? (
-            <p style={{ margin: "0.25rem 0" }}>{member.headline}</p>
+      <article className="dn-github-profile__card">
+        <header className="dn-github-profile__identity">
+          <MemberAvatar member={profile} size={112} />
+          <div>
+            <p className="dn-section-kicker">{dict.member.kicker}</p>
+            <h1 id="profile-heading">{profile.displayName}</h1>
+            <p className="dn-github-profile__login">@{profile.githubUsername}</p>
+            {profile.headline !== null ? <p className="dn-lede">{profile.headline}</p> : null}
+            {profile.bio !== null ? (
+              <p className="dn-lede" style={{ whiteSpace: "pre-line" }}>
+                {profile.bio}
+              </p>
+            ) : null}
+          </div>
+        </header>
+
+        <dl className="dn-github-profile__facts">
+          {profile.affiliation !== null ? (
+            <div>
+              <dt>{dict.member.affiliationLabel}</dt>
+              <dd>{profile.affiliation}</dd>
+            </div>
           ) : null}
+          {profile.location !== null ? (
+            <div>
+              <dt>{dict.member.locationLabel}</dt>
+              <dd>{profile.location}</dd>
+            </div>
+          ) : null}
+          {profile.skills.length > 0 ? (
+            <div>
+              <dt>{dict.member.skills}</dt>
+              <dd>{profile.skills.join(", ")}</dd>
+            </div>
+          ) : null}
+        </dl>
+
+        {profile.links.length > 0 ? (
+          <section className="public-discovery__link-list" aria-labelledby="links-heading">
+            <h2 id="links-heading" style={{ fontSize: "1rem" }}>
+              {dict.member.links}
+            </h2>
+            <ul>
+              {profile.links.map((link) => (
+                <li key={link}>
+                  <a href={link} target="_blank" rel="noopener noreferrer">
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <div className="dn-github-profile__actions">
+          <a
+            className="btn btn--primary"
+            href={`https://github.com/${profile.githubUsername}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {dict.member.viewOnGithub}
+          </a>
+          <p>{dict.member.sharedNote}</p>
         </div>
-      </header>
+      </article>
 
-      {member.affiliation !== null || member.location !== null ? (
-        <div className="dn-sidebar-section mt-3" style={{ maxWidth: "28rem" }}>
-          <dl>
-            {member.affiliation !== null ? (
-              <>
-                <dt>{dict.profile.fields.affiliation}</dt>
-                <dd>{member.affiliation}</dd>
-              </>
-            ) : null}
-            {member.location !== null ? (
-              <>
-                <dt>{dict.profile.fields.location}</dt>
-                <dd>{member.location}</dd>
-              </>
-            ) : null}
-          </dl>
-        </div>
-      ) : null}
-
-      {member.bio !== null ? (
-        <section className="mt-4">
-          <h2>{dict.member.about}</h2>
-          <p style={{ whiteSpace: "pre-line" }}>{member.bio}</p>
-        </section>
-      ) : null}
-
-      {member.links.length > 0 ? (
-        <section className="mt-4">
-          <h2>{dict.member.links}</h2>
-          <ul>
-            {member.links.map((link) => (
-              <li key={link}>
-                <a href={link} target="_blank" rel="noreferrer">
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {member.skills.length > 0 ? (
-        <section className="mt-4">
-          <h2>{dict.member.skills}</h2>
-          <ul className="dn-skill-list">
-            {member.skills.map((skill) => (
-              <li key={skill} className="dn-skill-chip">
-                {skill}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <p className="mt-4">
-        <a
-          className="btn btn-sm"
-          href={`https://github.com/${member.githubUsername}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {dict.member.viewOnGithub}
-        </a>
+      <p className="dn-github-profile__report">
+        <Link href={localePath(activeLocale, "/members")}>← {dict.member.back}</Link>
       </p>
     </div>
   );

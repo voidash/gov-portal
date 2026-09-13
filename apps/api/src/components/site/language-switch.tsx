@@ -1,26 +1,33 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Fragment } from "react";
 
 import { LOCALES, type Locale } from "@/lib/i18n";
 
-export function LanguageSwitch({ locale }: { locale: Locale }) {
+export function LanguageSwitch({ locale, label }: { locale: Locale; label: string }) {
   const pathname = usePathname();
+  const router = useRouter();
   const rest = pathname.split("/").filter(Boolean).slice(1).join("/");
 
   return (
-    <span className="dn-lang-switch">
+    <span className="lang-switch" role="group" aria-label={label}>
       {LOCALES.map((entry, index) => (
-        <span key={entry}>
-          {index > 0 ? " | " : null}
-          <Link
-            href={`/${entry}${rest.length > 0 ? `/${rest}` : ""}`}
+        <Fragment key={entry}>
+          {index > 0 ? (
+            <span className="lang-switch__divider" aria-hidden="true">
+              |
+            </span>
+          ) : null}
+          <button
+            type="button"
+            lang={entry}
             aria-current={entry === locale ? "true" : undefined}
+            onClick={() => router.push(`/${entry}${rest.length > 0 ? `/${rest}` : ""}`)}
           >
             {entry === "en" ? "EN" : "ने"}
-          </Link>
-        </span>
+          </button>
+        </Fragment>
       ))}
     </span>
   );

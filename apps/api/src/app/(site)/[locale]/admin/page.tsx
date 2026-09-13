@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+
 import { isAdminGithubId } from "@/config";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { getActor } from "@/server/actor";
@@ -18,30 +19,45 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
 
   if (actor === null) {
     return (
-      <div className="dn-container dn-page-body" style={{ maxWidth: "40rem" }}>
-        <h1>{dict.admin.title}</h1>
-        <p className="dn-lede">{dict.admin.signInBody}</p>
-        <SignInPanel label={dict.session.signIn} title={dict.admin.signInTitle} locale={locale} />
-      </div>
+      <section className="section" aria-labelledby="admin-heading">
+        <div className="container dn-container--narrow">
+          <header className="dn-profile-edit__head">
+            <p className="dn-section-kicker">{dict.admin.kicker}</p>
+            <h1 id="admin-heading">{dict.admin.title}</h1>
+            <p className="dn-lede">{dict.admin.signInBody}</p>
+          </header>
+          <SignInPanel label={dict.session.signIn} locale={locale} />
+        </div>
+      </section>
     );
   }
 
   if (!isAdminGithubId(actor.githubId)) {
     return (
-      <div className="dn-container dn-page-body" style={{ maxWidth: "40rem" }}>
-        <h1>{dict.admin.notAuthorizedTitle}</h1>
-        <p className="dn-lede">{dict.admin.notAuthorizedBody}</p>
-      </div>
+      <section className="section" aria-labelledby="admin-heading">
+        <div className="container dn-container--narrow">
+          <header className="dn-profile-edit__head">
+            <p className="dn-section-kicker">{dict.admin.kicker}</p>
+            <h1 id="admin-heading">{dict.admin.notAuthorizedTitle}</h1>
+            <p className="dn-lede">{dict.admin.notAuthorizedBody}</p>
+          </header>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="dn-container dn-page-body">
-      <h1>{dict.admin.title}</h1>
-      <p className="dn-lede">{dict.admin.lede}</p>
-      <div className="mt-3">
+    <section className="section" aria-labelledby="admin-heading">
+      <div className="container">
+        <header className="dn-catalog-heading">
+          <div>
+            <p className="dn-section-kicker">{dict.admin.kicker}</p>
+            <h1 id="admin-heading">{dict.admin.title}</h1>
+            <p>{dict.admin.lede}</p>
+          </div>
+        </header>
         <AdminQueue dict={dict} />
       </div>
-    </div>
+    </section>
   );
 }

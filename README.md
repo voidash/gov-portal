@@ -12,7 +12,7 @@ REST API (`/members`, `/project`, …) used by external clients.
 |---|---|
 | Runtime | Node 24 LTS (Bun for package management and scripts) |
 | Framework | Next.js 16 App Router — pages + route handlers in one app |
-| UI | React 19, Primer CSS 22 (GitHub's design system), react-markdown |
+| UI | React 19, DevNepal design system (Primer CSS vendored + tokens), react-markdown |
 | Database | PostgreSQL 17 |
 | ORM | Drizzle ORM + drizzle-kit (plain-SQL migrations) |
 | Auth | Auth.js v5 (`next-auth@5` beta) — GitHub OAuth, JWT sessions, no adapter |
@@ -226,9 +226,15 @@ fixed taxonomy in `packages/shared/src/skills.ts`.
 Server-rendered pages under `/en` and `/ne` (English default; `/` redirects to
 `/en`): home, project, issues list with label/search filters, issue detail with
 sanitized Markdown, member directory, member profiles, own profile editor,
-admin moderation, and a how-to-contribute page. The visual language is Primer
-(the design authority for the old DevNepal portal) with a government strip and
-a dark product header. Translations live in `apps/api/src/lib/i18n.ts`.
+admin moderation, and a how-to-contribute page.
+
+The visual language is ported from the DevNepal frontend
+([`voidash/DevNepal`, branch `demo/minimal-validated-flow`](https://github.com/voidash/DevNepal/tree/demo/minimal-validated-flow)):
+the government state strip with the emblem, the black condensed headings, the
+blue action ramp, and the component styles in
+`apps/api/public/assets/devnepal/` (provenance and licences in that folder's
+README). Primer CSS is vendored underneath as the base layer. Translations live
+in `apps/api/src/lib/i18n.ts`.
 
 ## Security invariants (tested)
 

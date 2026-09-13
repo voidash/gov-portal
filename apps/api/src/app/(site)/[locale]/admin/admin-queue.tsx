@@ -30,9 +30,9 @@ function PriorityEditor({
   const valid = value.trim() !== "" && Number.isInteger(parsed);
 
   return (
-    <span className="d-flex flex-items-center gap-1">
+    <span className="hero__actions" style={{ alignItems: "center" }}>
       <input
-        className="form-control input-sm"
+        className="form-control"
         type="number"
         aria-label={labels.title}
         value={value}
@@ -106,92 +106,111 @@ export function AdminQueue({ dict }: { dict: Dictionary }) {
 
   return (
     <div>
-      <nav
-        className="dn-tabs"
-        aria-label={dict.admin.title}
-        style={{ borderBottom: "1px solid var(--borderColor-default, #d0d7de)" }}
-      >
+      <div className="dn-catalog-quick" aria-label={dict.admin.title}>
+        <span>{dict.admin.title}</span>
         {TABS.map((entry) => (
-          <button
+          <a
             key={entry}
-            type="button"
-            className="dn-tab"
-            aria-current={entry === tab ? "page" : undefined}
-            onClick={() => setTab(entry)}
-            style={{
-              background: "transparent",
-              border: 0,
-              borderBottom: "2px solid transparent",
-              cursor: "pointer",
+            href={`?status=${entry}`}
+            aria-current={entry === tab ? "true" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              setTab(entry);
             }}
           >
             {dict.admin.tabs[entry]}
-          </button>
+          </a>
         ))}
-      </nav>
+      </div>
 
-      {error !== null ? <div className="dn-state-banner is-danger mt-3">{error}</div> : null}
+      {error !== null ? (
+        <div className="dn-state-banner is-danger error-summary" role="alert">
+          {error}
+        </div>
+      ) : null}
 
       {members === null ? (
-        <p className="dn-lede mt-3">{dict.common.loading}</p>
+        <p className="dn-lede">{dict.common.loading}</p>
       ) : members.length === 0 ? (
-        <div className="dn-state-banner mt-3">{dict.admin.noMembers}</div>
+        <div className="dn-empty" role="status">
+          <strong>{dict.admin.noMembers}</strong>
+        </div>
       ) : (
-        <div className="dn-settings-list mt-3">
-          {members.map((entry) => {
-            const busy = busyId === entry.id;
-            return (
-              <div className="dn-setting-row" key={entry.id}>
-                <div className="d-flex flex-items-center gap-2">
-                  <MemberAvatar member={entry} size={40} />
-                  <div>
-                    <strong>{entry.displayName}</strong>
-                    <p>
-                      @{entry.githubUsername} · {dict.admin.tabs[entry.status]}
-                    </p>
-                  </div>
-                </div>
-                <div className="d-flex flex-items-center gap-2 flex-wrap">
-                  <PriorityEditor
-                    member={entry}
-                    busy={busy}
-                    labels={{ title: dict.admin.priority, set: dict.admin.setPriority }}
-                    onSave={(priority) => void apply(entry, { priority })}
-                  />
-                  {entry.status !== "approved" ? (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-primary"
-                      disabled={busy}
-                      onClick={() => void apply(entry, { status: "approved" })}
-                    >
-                      {dict.admin.approve}
-                    </button>
-                  ) : null}
-                  {entry.status !== "rejected" ? (
-                    <button
-                      type="button"
-                      className="btn btn-sm"
-                      disabled={busy}
-                      onClick={() => void apply(entry, { status: "rejected" })}
-                    >
-                      {dict.admin.reject}
-                    </button>
-                  ) : null}
-                  {entry.status !== "hidden" ? (
-                    <button
-                      type="button"
-                      className="btn btn-sm"
-                      disabled={busy}
-                      onClick={() => void apply(entry, { status: "hidden" })}
-                    >
-                      {dict.admin.hide}
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
+        <div className="card blueprint" style={{ padding: 0, overflowX: "auto" }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Member</th>
+                <th scope="col">Status</th>
+                <th scope="col">{dict.admin.priority}</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((entry) => {
+                const busy = busyId === entry.id;
+                return (
+                  <tr key={entry.id}>
+                    <td>
+                      <span className="hero__actions" style={{ alignItems: "center" }}>
+                        <MemberAvatar member={entry} size={36} />
+                        <span>
+                          <strong>{entry.displayName}</strong>
+                          <br />
+                          <span className="dn-issue-meta">@{entry.githubUsername}</span>
+                        </span>
+                      </span>
+                    </td>
+                    <td>
+                      <span className="Label">{dict.admin.tabs[entry.status]}</span>
+                    </td>
+                    <td>
+                      <PriorityEditor
+                        member={entry}
+                        busy={busy}
+                        labels={{ title: dict.admin.priority, set: dict.admin.setPriority }}
+                        onSave={(priority) => void apply(entry, { priority })}
+                      />
+                    </td>
+                    <td>
+                      <span className="hero__actions">
+                        {entry.status !== "approved" ? (
+                          <button
+                            type="button"
+                            className="btn btn--primary btn-sm"
+                            disabled={busy}
+                            onClick={() => void apply(entry, { status: "approved" })}
+                          >
+                            {dict.admin.approve}
+                          </button>
+                        ) : null}
+                        {entry.status !== "rejected" ? (
+                          <button
+                            type="button"
+                            className="btn btn--danger btn-sm"
+                            disabled={busy}
+                            onClick={() => void apply(entry, { status: "rejected" })}
+                          >
+                            {dict.admin.reject}
+                          </button>
+                        ) : null}
+                        {entry.status !== "hidden" ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            disabled={busy}
+                            onClick={() => void apply(entry, { status: "hidden" })}
+                          >
+                            {dict.admin.hide}
+                          </button>
+                        ) : null}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -2,10 +2,8 @@ import type { IssueDto } from "@gov-portal/shared";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { LabelChip } from "@/components/ui/label-chip";
 import { Markdown } from "@/components/ui/markdown";
-import { TabNav } from "@/components/ui/tab-nav";
-import { getDictionary, isLocale, localePath } from "@/lib/i18n";
+import { getDictionary, isLocale, type Locale, localePath } from "@/lib/i18n";
 import { NotFoundError } from "@/server/errors";
 import { getProjectIssue } from "@/server/projects/service";
 
@@ -20,7 +18,8 @@ export default async function IssueDetailPage({
   if (!isLocale(locale)) {
     notFound();
   }
-  const dict = getDictionary(locale);
+  const activeLocale: Locale = locale;
+  const dict = getDictionary(activeLocale);
 
   if (!/^\d+$/.test(number)) {
     notFound();
@@ -36,68 +35,55 @@ export default async function IssueDetailPage({
     throw error;
   }
 
-  const updated = new Date(issue.updatedAt).toLocaleString(locale === "ne" ? "ne-NP" : "en-GB");
-
   return (
-    <>
-      <div className="dn-page-header">
-        <div className="dn-container">
-          <div className="dn-repo-title">
-            <Link href={localePath(locale, "/issues")}>{dict.issues.title}</Link>
-            <span className="dn-repo-title-separator">/</span>
-            <strong>#{issue.number}</strong>
+    <div className="dn-container dn-github-issue" aria-labelledby="issue-title">
+      <nav className="dn-breadcrumbs" aria-label={dict.issues.breadcrumbProject}>
+        <Link href={localePath(activeLocale, "/issues")}>{dict.issue.breadcrumbProjects}</Link>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">
+          {dict.issues.issueLabel} #{issue.number}
+        </span>
+      </nav>
+
+      <article className="dn-github-issue__card">
+        <header>
+          <div className="dn-project-hero__labels">
+            <span className={`Label ${issue.state === "open" ? "Label--success" : ""}`}>
+              {issue.state === "open" ? dict.issue.stateOpen : dict.issue.stateClosed}
+            </span>
+            {issue.labels.map((label) => (
+              <span key={label.name} className="Label">
+                {label.name}
+              </span>
+            ))}
           </div>
-          <TabNav
-            items={[
-              { href: localePath(locale, "/project"), label: dict.project.tabs.overview },
-              { href: localePath(locale, "/issues"), label: dict.project.tabs.issues },
-              { href: localePath(locale, "/about"), label: dict.project.tabs.contribute },
-            ]}
-          />
-        </div>
-      </div>
+          <h1 id="issue-title">{issue.title}</h1>
+          <p>
+            #{issue.number} · {dict.issue.openedBy} @{issue.authorLogin} · {issue.commentsCount}{" "}
+            {dict.issue.comments}
+          </p>
+        </header>
 
-      <div className="dn-container dn-page-body">
-        <Link className="dn-lede" href={localePath(locale, "/issues")}>
-          ← {dict.issue.back}
-        </Link>
-
-        <h1 style={{ fontSize: "1.75rem", marginTop: "1rem" }}>
-          {issue.title} <span className="dn-lede">#{issue.number}</span>
-        </h1>
-
-        <div className="d-flex flex-wrap flex-items-center gap-2 mt-2 mb-3">
-          <span className={`State ${issue.state === "open" ? "State--open" : "State--closed"}`}>
-            {issue.state}
-          </span>
-          {issue.labels.map((label) => (
-            <LabelChip key={label.name} label={label} />
-          ))}
-        </div>
-
-        <p className="dn-lede">
-          {dict.issue.openedBy} @{issue.authorLogin} · {dict.issue.updated} {updated}
-        </p>
-
-        <div className="dn-readme mt-4">
-          <div className="dn-readme-header">
-            {dict.issue.openedBy} @{issue.authorLogin}
-          </div>
-          <div className="dn-readme-body">
-            {issue.body !== null && issue.body.trim().length > 0 ? (
-              <Markdown>{issue.body}</Markdown>
-            ) : (
-              <p className="dn-lede">{dict.project.noDescription}</p>
-            )}
-          </div>
+        <div className="dn-github-issue__body">
+          {issue.body !== null && issue.body.trim().length > 0 ? (
+            <Markdown>{issue.body}</Markdown>
+          ) : (
+            <p>{dict.issue.noDescription}</p>
+          )}
         </div>
 
-        <p className="mt-3">
-          <a className="btn" href={issue.htmlUrl} target="_blank" rel="noreferrer">
-            {dict.issue.github}
+        <footer>
+          <a
+            className="btn btn--primary"
+            href={issue.htmlUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {dict.issue.startContributing}
           </a>
-        </p>
-      </div>
-    </>
+          <p>{dict.issue.sourceNote}</p>
+        </footer>
+      </article>
+    </div>
   );
 }

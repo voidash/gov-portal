@@ -9,10 +9,12 @@ export function SessionMenu({
   signInLabel,
   signOutLabel,
   statusLabels,
+  greetingLabel,
 }: {
   signInLabel: string;
   signOutLabel: string;
   statusLabels: Record<SelfMemberDto["status"], string>;
+  greetingLabel: string;
 }) {
   const [member, setMember] = useState<SelfMemberDto | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -54,7 +56,7 @@ export function SessionMenu({
   if (member === null) {
     return (
       <button
-        className="btn btn-sm"
+        className="btn btn-sm dn-signin"
         type="button"
         onClick={() => void signInWithGitHub(window.location.pathname)}
       >
@@ -64,8 +66,10 @@ export function SessionMenu({
   }
 
   return (
-    <span className="dn-header-user">
-      <span>{member.displayName}</span>
+    <>
+      <span className="dn-greeting">
+        {greetingLabel} {member.displayName}
+      </span>
       <span className="Label Label--secondary">{statusLabels[member.status]}</span>
       <button
         className="btn btn-sm"
@@ -78,6 +82,6 @@ export function SessionMenu({
       >
         {signOutLabel}
       </button>
-    </span>
+    </>
   );
 }

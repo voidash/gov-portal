@@ -9,21 +9,25 @@ export type NavItem = {
   exact?: boolean;
 };
 
-export function SiteNav({ items }: { items: NavItem[] }) {
+export function SiteNav({ items, label }: { items: NavItem[]; label: string }) {
   const pathname = usePathname();
   return (
-    <nav className="dn-header-nav" aria-label="Main">
-      {items.map((item) => {
-        const active =
-          item.exact === true
-            ? pathname === item.href
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
-        return (
-          <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}>
-            {item.label}
-          </Link>
-        );
-      })}
+    <nav className="dn-primary-nav" aria-label={label}>
+      <ul>
+        {items.map((item) => {
+          const active =
+            item.exact === true
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <li key={item.href}>
+              <Link href={item.href} aria-current={active ? "page" : undefined}>
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }
