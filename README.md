@@ -171,10 +171,10 @@ Issues are reconciled from the project's public repository over the REST API
 bun run sync:github      # pulls all issues for voidash/gov-portal, replaces fixtures
 ```
 
-Set `GITHUB_TOKEN` to lift the anonymous rate limit. The repository currently
-has no open issues, so the list is empty after a sync until issues are created;
-`bun run db:seed` brings the sample fixtures back. Real webhooks and
-contribution indexing are a later phase.
+Set `GITHUB_TOKEN` to lift the anonymous rate limit. The repository ships with a
+handful of real open issues (documentation, accessibility, and first-issue
+tasks), so a sync replaces the sample fixtures with the GitHub list. Real
+webhooks and contribution indexing are a later phase.
 
 ### Ports
 
