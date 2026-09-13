@@ -15,6 +15,13 @@
       "when": 1789294419257,
       "tag": "0001_wandering_starfox",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789296016409,
+      "tag": "0002_numerous_marvex",
+      "breakpoints": true
     }
   ]
 }

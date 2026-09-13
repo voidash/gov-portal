@@ -98,7 +98,8 @@ the REST route, then ask for a reviewer from each side.
 
 ## Known gaps (intentional)
 
-- Real webhooks and contribution indexing are a later phase; issues come from
-  `bun run sync:github` (public REST reconciliation).
+- Live webhook delivery is deferred; issues come from `bun run sync:github`
+  (a signed webhook endpoint exists and is tested, but nothing is wired to it).
+- Contribution indexing and recognition are a later phase.
 - The seed's GitHub usernames are fictional; real avatars appear after real
   sign-ins.

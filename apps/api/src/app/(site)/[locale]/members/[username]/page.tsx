@@ -29,22 +29,7 @@ export default async function MemberDetailPage({
     member = await getVisibleMemberByUsername(username, viewer);
   } catch (error) {
     if (error instanceof NotFoundError) {
-      return (
-        <section className="section" aria-labelledby="member-not-found">
-          <div className="container">
-            <header className="public-discovery__header">
-              <div>
-                <p className="dn-section-kicker">{dict.member.kicker}</p>
-                <h1 id="member-not-found">{dict.member.notFoundTitle}</h1>
-                <p className="hero__lead">{dict.member.notFoundBody}</p>
-              </div>
-            </header>
-            <Link className="btn" href={localePath(activeLocale, "/members")}>
-              ← {dict.member.back}
-            </Link>
-          </div>
-        </section>
-      );
+      notFound();
     }
     throw error;
   }

@@ -8,7 +8,7 @@ const FALLBACK_LABEL_COLOR = "ededed";
 
 type GithubApiLabel = string | { name?: string; color?: string };
 
-type GithubApiIssue = {
+export type GithubApiIssue = {
   number: number;
   title: string;
   body: string | null;
@@ -39,7 +39,7 @@ function normalizeLabels(labels: GithubApiLabel[]): { name: string; color: strin
   );
 }
 
-function mapIssue(issue: GithubApiIssue): Omit<NewGithubIssue, "projectId"> {
+export function mapGitHubIssue(issue: GithubApiIssue): Omit<NewGithubIssue, "projectId"> {
   return {
     number: issue.number,
     title: issue.title.slice(0, 300),
@@ -105,7 +105,7 @@ export async function syncProjectIssues(
         skippedPullRequests += 1;
         continue;
       }
-      collected.push(mapIssue(issue));
+      collected.push(mapGitHubIssue(issue));
     }
     if (batch.length < PER_PAGE) {
       break;

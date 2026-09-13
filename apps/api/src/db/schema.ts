@@ -122,3 +122,27 @@ export const githubIssues = pgTable(
 
 export type GithubIssue = typeof githubIssues.$inferSelect;
 export type NewGithubIssue = typeof githubIssues.$inferInsert;
+
+export const githubEvents = pgTable(
+  "github_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    deliveryId: varchar("delivery_id", { length: 100 }).notNull(),
+    eventType: varchar("event_type", { length: 100 }).notNull(),
+    action: varchar("action", { length: 50 }),
+    repositoryFullName: varchar("repository_full_name", { length: 250 }),
+    signatureValid: boolean("signature_valid").notNull().default(false),
+    status: varchar("status", { length: 20 }).notNull().default("received"),
+    error: text("error"),
+    payload: jsonb("payload").$type<unknown>(),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("github_events_delivery_id_uq").on(table.deliveryId),
+    index("github_events_status_idx").on(table.status, table.receivedAt.desc()),
+  ],
+);
+
+export type GithubEvent = typeof githubEvents.$inferSelect;
+export type NewGithubEvent = typeof githubEvents.$inferInsert;

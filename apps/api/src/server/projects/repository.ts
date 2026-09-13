@@ -27,6 +27,15 @@ export async function findActiveProject(): Promise<Project | null> {
   return rows[0] ?? null;
 }
 
+export async function findProjectByFullName(fullName: string): Promise<Project | null> {
+  const rows = await db
+    .select()
+    .from(projects)
+    .where(sql`lower(${projects.fullName}) = ${fullName.toLowerCase()}`)
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function countOpenIssues(projectId: string): Promise<number> {
   const rows = await db
     .select({ count: sql<number>`count(*)::int` })
@@ -134,6 +143,12 @@ export async function deleteSampleIssues(projectId: string): Promise<void> {
   await db
     .delete(githubIssues)
     .where(and(eq(githubIssues.projectId, projectId), eq(githubIssues.source, "sample")));
+}
+
+export async function deleteIssueByNumber(projectId: string, number: number): Promise<void> {
+  await db
+    .delete(githubIssues)
+    .where(and(eq(githubIssues.projectId, projectId), eq(githubIssues.number, number)));
 }
 
 export async function touchProjectSynced(projectId: string): Promise<void> {

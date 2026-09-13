@@ -173,8 +173,13 @@ bun run sync:github      # pulls all issues for voidash/gov-portal, replaces fix
 
 Set `GITHUB_TOKEN` to lift the anonymous rate limit. The repository ships with a
 handful of real open issues (documentation, accessibility, and first-issue
-tasks), so a sync replaces the sample fixtures with the GitHub list. Real
-webhooks and contribution indexing are a later phase.
+tasks), so a sync replaces the sample fixtures with the GitHub list.
+
+A signature-verified webhook endpoint (`POST /webhooks/github`) is implemented
+and tested — deliveries are deduplicated in an event ledger and applied to the
+stored issues. Wiring live delivery (repo webhook or `gh webhook forward`) is
+optional and deferred; reconciliation with `sync:github` is the reliable path
+until then. Contribution indexing is a later phase.
 
 ### Ports
 
@@ -203,6 +208,7 @@ webhooks and contribution indexing are a later phase.
 | `STORAGE_DIR` | yes | Directory for stored avatars (persistent volume) |
 | `WEB_ORIGIN` | external clients | CORS allowlist for non-browser clients (mobile); the UI is same-origin |
 | `GITHUB_TOKEN` | optional | Raises the GitHub API rate limit for `sync:github` |
+| `GITHUB_WEBHOOK_SECRET` | optional | HMAC secret for `POST /webhooks/github` deliveries (endpoint is inert without it) |
 | `TEST_DATABASE_URL` | tests | Separate database used by the test suite |
 
 `.env*` files are gitignored; `.env.example` is the only committed reference.
@@ -336,6 +342,7 @@ migrations against the target database before starting the new image
 
 - The API is intentionally unversioned for now; a future mobile client pins to
   these paths, so the first breaking change will need a coordinated migration.
-- GitHub webhooks, contribution indexing, and recognition are a later phase;
-  today issues are reconciled on demand with `bun run sync:github`.
-- Dark mode: Primer tokens are wired for light mode only for now.
+- Live webhook delivery and contribution indexing are a later phase; issues
+  are reconciled on demand with `bun run sync:github`, and the signed webhook
+  endpoint is ready when delivery is wired.
+- Dark mode: the design tokens ship with light mode only for now.
