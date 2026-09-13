@@ -242,7 +242,7 @@ UI pages live under `/en` and `/ne` and do not collide with these paths.
 | `GET` | `/members/{githubUsername}` | public / owner | Case-insensitive username lookup |
 | `GET` | `/members/id/{githubId}` | public / owner | Same member, numeric GitHub ID |
 | `GET` | `/avatars/{key}` | public | Stored avatar bytes, immutable cache headers |
-| `GET` | `/profile` | authenticated | Own member incl. `id`, `status`, `approvedAt` |
+| `GET` | `/profile` | authenticated | Own member incl. `id`, `status`, `approvedAt`, plus `isAdmin` |
 | `PATCH` | `/profile` | authenticated | Updates the session member only |
 | `GET` | `/admin/members?status=` | admin | Moderation queue, optional status filter |
 | `PATCH` | `/admin/members/{id}` | admin | `{ status?, priority? }` |
@@ -273,6 +273,11 @@ Server-rendered pages under `/en` and `/ne` (English default; `/` redirects to
 `/en`): home, project, issues list with label/search filters, issue detail with
 sanitized Markdown, member directory, member profiles, own profile editor,
 admin moderation, and a how-to-contribute page.
+
+Primary navigation is: Open issues · Members · How to contribute — the project
+itself is reached from the home hero and the project card. When a member is
+signed in, the header shows **My profile**, and **Admin** appears for accounts
+listed in `ADMIN_GITHUB_IDS`.
 
 The visual language is ported from the DevNepal frontend
 ([`voidash/DevNepal`, branch `demo/minimal-validated-flow`](https://github.com/voidash/DevNepal/tree/demo/minimal-validated-flow)):

@@ -9,7 +9,6 @@ import { SiteNav } from "./site-nav";
 export function SiteHeader({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
   const items = [
-    { href: localePath(locale, "/project"), label: dict.nav.project },
     { href: localePath(locale, "/issues"), label: dict.nav.issues },
     { href: localePath(locale, "/members"), label: dict.nav.members },
     { href: localePath(locale, "/about"), label: dict.nav.about },
@@ -69,10 +68,13 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <SiteNav items={items} label={dict.nav.primary} />
         <div className="dn-header-actions">
           <SessionMenu
+            locale={locale}
             signInLabel={dict.session.signIn}
             signOutLabel={dict.session.signOut}
             statusLabels={dict.profile.statusShort}
             greetingLabel={dict.session.greeting}
+            profileLabel={dict.nav.myProfile}
+            adminLabel={dict.nav.admin}
           />
         </div>
         <details className="mobile-nav">
