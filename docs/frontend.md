@@ -73,6 +73,7 @@ README).
 | `/en/members` | approved member directory with search + skill filter |
 | `/en/members/{username}` | public member profile (owner sees non-public states) |
 | `/en/profile` | own profile editor (requires session) |
+| `/en/welcome` | post-sign-in onboarding: admins land on the admin dashboard, approved members on the home page, and pending/rejected/hidden members see their status |
 | `/en/admin` | member moderation (requires `ADMIN_GITHUB_IDS`) |
 | `/en/about` | how to contribute |
 

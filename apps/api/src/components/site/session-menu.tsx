@@ -74,7 +74,7 @@ export function SessionMenu({
       <button
         className="btn btn-sm dn-signin"
         type="button"
-        onClick={() => void signInWithGitHub(window.location.pathname)}
+        onClick={() => void signInWithGitHub(`/${locale}/welcome`)}
       >
         {signInLabel}
       </button>

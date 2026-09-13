@@ -16,7 +16,7 @@ export function SignInPanel({ label, locale }: { label: string; locale: Locale }
           disabled={busy}
           onClick={() => {
             setBusy(true);
-            signInWithGitHub(`/${locale}/profile`).catch(() => setBusy(false));
+            signInWithGitHub(`/${locale}/welcome`).catch(() => setBusy(false));
           }}
         >
           {label}

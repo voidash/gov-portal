@@ -32,6 +32,23 @@ const en = {
     signOut: "Sign out",
     greeting: "Signed in as",
   },
+  welcome: {
+    kicker: "Onboarding",
+    pendingTitle: "You're signed in — pending review",
+    pendingBody:
+      "Your GitHub account is connected. The admin reviews new members before they appear in the public directory. Complete your profile now so approval is a formality.",
+    approvedTitle: "You're approved",
+    approvedBody: "Your profile is public. Start with the open issues.",
+    rejectedTitle: "Your profile was not approved",
+    rejectedBody:
+      "The admin did not approve this profile for the public directory. You can still keep your profile up to date; contact the maintainers if you think this was a mistake.",
+    hiddenTitle: "Your profile is hidden",
+    hiddenBody:
+      "This profile is currently hidden from the public directory. You can still edit it, and the admin can make it public again.",
+    completeProfile: "Complete your profile",
+    openProfile: "Open your profile",
+    browseIssues: "Browse open issues",
+  },
   home: {
     tag: "Open public work",
     titleLine1: "Public technology,",
@@ -309,6 +326,23 @@ const ne: Dictionary = {
     signIn: "GitHub बाट साइन इन",
     signOut: "साइन आउट",
     greeting: "साइन इन:",
+  },
+  welcome: {
+    kicker: "स्वागत",
+    pendingTitle: "तपाईं साइन इन हुनुभयो — समीक्षा बाँकी",
+    pendingBody:
+      "तपाईंको GitHub खाता जोडियो। नयाँ सदस्यहरू सार्वजनिक निर्देशिकामा देखिनु अघि एड्मिनले समीक्षा गर्छ। स्वीकृति सहज बनाउन अहिल्यै प्रोफाइल पूरा गर्नुहोस्।",
+    approvedTitle: "तपाईं स्वीकृत हुनुभयो",
+    approvedBody: "तपाईंको प्रोफाइल सार्वजनिक छ। खुला इशुहरूबाट सुरु गर्नुहोस्।",
+    rejectedTitle: "तपाईंको प्रोफाइल स्वीकृत भएन",
+    rejectedBody:
+      "एड्मिनले यो प्रोफाइल सार्वजनिक निर्देशिकाका लागि स्वीकृत गरेन। प्रोफाइल अद्यावधिक राख्न सक्नुहुन्छ; गल्ती भएको लाग्छ भने मर्मतकर्तालाई सम्पर्क गर्नुहोस्।",
+    hiddenTitle: "तपाईंको प्रोफाइल लुकाइएको छ",
+    hiddenBody:
+      "यो प्रोफाइल अहिले सार्वजनिक निर्देशिकाबाट लुकाइएको छ। सम्पादन गर्न सकिन्छ, र एड्मिनले पुनः सार्वजनिक गर्न सक्छ।",
+    completeProfile: "प्रोफाइल पूरा गर्नुहोस्",
+    openProfile: "प्रोफाइल खोल्नुहोस्",
+    browseIssues: "खुला इशुहरू हेर्नुहोस्",
   },
   home: {
     tag: "खुला सार्वजनिक काम",
