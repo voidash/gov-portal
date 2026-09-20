@@ -40,7 +40,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             href={localePath(locale)}
             className="flex min-w-0 items-center gap-2.5 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <span aria-hidden className="size-5 shrink-0 rounded-full bg-primary" />
+            {/* Platform brand mark. The national emblem is reserved for the
+                government-identity strip and the footer, so the two signals
+                stay distinct. Decorative: the wordmark beside it carries the
+                name. */}
+            {/* biome-ignore lint/performance/noImgElement: fixed-size inline brand mark */}
+            <img src="/navbar/logo.svg" alt="" width={24} height={24} className="size-6 shrink-0" />
             <span className="text-lg font-semibold text-primary dark:text-foreground">
               {dict.brand}
             </span>

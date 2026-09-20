@@ -12,13 +12,22 @@ Auth.js internals, or environment configuration; the linter enforces this.
 
 ## Design
 
-The visual language is the DevNepal design system, ported from
-`voidash/DevNepal` (branch `demo/minimal-validated-flow`) and served from
-`apps/api/public/assets/devnepal/` — tokens, base, components, devnepal and
-public-discovery stylesheets, the vendored Primer base layer, Inter/Barlow
-fonts, and the emblem assets. See the README in that folder for provenance and
-licences. Use the existing `dn-*`, `btn`, `card`, `Label`, `tag` and
-`field` classes rather than inventing new ones.
+The visual language is a self-contained Tailwind v4 + shadcn token system
+defined in `apps/api/src/app/tailwind.css`. Semantic tokens (`--background`,
+`--card`, `--primary`, `--muted`, `--destructive`, `--chart-1…5`) each have a
+`.dark` counterpart, and theme switching runs through `next-themes` in
+`components/providers/theme-provider.tsx`.
+
+Use the semantic utilities (`bg-card`, `text-muted-foreground`,
+`border-border`) and the primitives in `components/ui/`. Do not reintroduce
+the legacy `dn-*`, `bg-paper`, `border-divider`, `accent-*` or `text-text`
+classes: the stylesheet that defined them is no longer loaded, so they
+resolve to nothing and render untinted.
+
+The national emblem (`public/official-website-bar/emblem-of-nepal.png`) marks
+government identity — the official website bar and the footer — and is also
+the favicon. The platform brand mark is `public/navbar/logo.svg`, used in the
+site header. Keep the two distinct.
 
 ## Environment
 
