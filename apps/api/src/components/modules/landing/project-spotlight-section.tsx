@@ -109,7 +109,7 @@ export function ProjectSpotlightSection({
                 </h3>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <Badge variant="outline" className="h-[22px]">
-                    MIT Licence
+                    {project.license ?? "MIT Licence"}
                   </Badge>
                   <Badge className="h-[22px] bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground">
                     <ShieldCheckIcon data-icon="inline-start" weight="fill" />
