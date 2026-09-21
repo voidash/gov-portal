@@ -56,10 +56,12 @@ export function MemberProfileHero({
                 </span>
               ) : null}
 
-              <span className="flex items-center gap-1.5">
-                <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
-                <span>{profile.location ?? "Kathmandu Nepal"}</span>
-              </span>
+              {profile.location !== null ? (
+                <span className="flex items-center gap-1.5">
+                  <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
+                  <span>{profile.location}</span>
+                </span>
+              ) : null}
             </div>
           </div>
         </div>

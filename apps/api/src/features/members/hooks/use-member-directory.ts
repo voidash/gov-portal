@@ -28,7 +28,6 @@ export function useMemberDirectory() {
         (a, b) => b.skills.length - a.skills.length || a.displayName.localeCompare(b.displayName),
       );
     }
-    if (sortMode === "recent") return rows.reverse();
     return rows.sort((a, b) => a.displayName.localeCompare(b.displayName));
   }, [filtered, sortMode]);
 

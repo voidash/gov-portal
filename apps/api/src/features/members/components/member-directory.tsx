@@ -119,7 +119,6 @@ export function MemberDirectory({
               className="h-10 rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="featured">{dict.members.sortFeatured}</option>
-              <option value="recent">{dict.members.sortRecent}</option>
               <option value="skills">{dict.members.sortSkills}</option>
             </select>
 
@@ -212,19 +211,27 @@ function MemberGridView({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <BuildingsIcon className="size-3.5 shrink-0" />
-                <span>{member.affiliation ?? "Niural AI"}</span>
-              </span>
-              <span>|</span>
-              <span className="flex items-center gap-1">
-                <MapPinIcon className="size-3.5 shrink-0" />
-                <span>{member.location ?? "Kathmandu Nepal"}</span>
-              </span>
-            </div>
+            {member.affiliation !== null || member.location !== null ? (
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                {member.affiliation !== null ? (
+                  <span className="flex items-center gap-1">
+                    <BuildingsIcon className="size-3.5 shrink-0" />
+                    <span>{member.affiliation}</span>
+                  </span>
+                ) : null}
+                {member.affiliation !== null && member.location !== null ? <span>|</span> : null}
+                {member.location !== null ? (
+                  <span className="flex items-center gap-1">
+                    <MapPinIcon className="size-3.5 shrink-0" />
+                    <span>{member.location}</span>
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
 
-            <MemberSkillChips skills={member.skills as string[]} />
+            {member.skills.length > 0 ? (
+              <MemberSkillChips skills={member.skills as string[]} />
+            ) : null}
           </div>
 
           <div className="pt-5 mt-4 border-t border-border/50">
@@ -265,7 +272,6 @@ function MemberTableView({
               <th className="px-5 py-3.5">ORGANISATION</th>
               <th className="px-5 py-3.5">CITY</th>
               <th className="px-5 py-3.5">SKILLS</th>
-              <th className="px-5 py-3.5 text-right">CONTRIBUTIONS</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -295,33 +301,24 @@ function MemberTableView({
                     </div>
                   </div>
                 </td>
-                <td className="px-5 py-4 text-muted-foreground">
-                  {member.headline ?? "Contributor"}
-                </td>
+                <td className="px-5 py-4 text-muted-foreground">{member.headline ?? "—"}</td>
                 <td className="px-5 py-4 font-semibold text-foreground">
                   {member.affiliation ?? "—"}
                 </td>
                 <td className="px-5 py-4 text-muted-foreground">{member.location ?? "—"}</td>
                 <td className="px-5 py-4">
                   <div className="flex flex-wrap gap-1.5">
-                    {(member.skills as string[]).slice(0, 3).map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-md border border-border bg-muted/60 px-2 py-0.5 text-xs text-foreground"
-                      >
-                        {s}
-                      </span>
-                    ))}
+                    {member.skills.length > 0
+                      ? (member.skills as string[]).map((s) => (
+                          <span
+                            key={s}
+                            className="rounded-md border border-border bg-muted/60 px-2 py-0.5 text-xs text-foreground"
+                          >
+                            {s}
+                          </span>
+                        ))
+                      : "—"}
                   </div>
-                </td>
-                <td className="px-5 py-4 text-right">
-                  <Link
-                    href={localePath(locale, `/members/${member.githubUsername}`)}
-                    className="text-muted-foreground hover:text-primary"
-                    aria-label={`View ${member.displayName}'s profile`}
-                  >
-                    ⊕
-                  </Link>
                 </td>
               </tr>
             ))}
@@ -335,9 +332,9 @@ function MemberTableView({
 /* ─── Skill chips (shared sub-component) ────────────────────────────────── */
 
 function MemberSkillChips({ skills }: { skills: string[] }) {
-  const all = skills.length > 0 ? skills : ["engineering", "security", "data"];
-  const shown = all.slice(0, 2);
-  const hidden = all.slice(2);
+  if (skills.length === 0) return null;
+  const shown = skills.slice(0, 2);
+  const hidden = skills.slice(2);
   return (
     <div className="flex flex-wrap items-center gap-1.5 pt-1">
       {shown.map((s) => (

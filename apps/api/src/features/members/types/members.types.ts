@@ -2,7 +2,7 @@ import type { PublicMemberDto } from "@gov-portal/shared";
 import type { Actor } from "@/hooks";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
-export type SortMode = "featured" | "recent" | "skills";
+export type SortMode = "featured" | "skills";
 export type ViewMode = "grid" | "table";
 export type MemberTab = "overview" | "contributions";
 
