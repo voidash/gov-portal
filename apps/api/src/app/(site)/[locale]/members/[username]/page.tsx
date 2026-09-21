@@ -1,22 +1,10 @@
 "use client";
 
-import {
-  BriefcaseIcon,
-  BuildingsIcon,
-  CheckCircleIcon,
-  GithubLogoIcon,
-  MapPinIcon,
-  PencilIcon,
-  ShareNetworkIcon,
-} from "@phosphor-icons/react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { useState } from "react";
 
 import { ErrorPanel, LoadingPanel, StateBanner } from "@/components/modules/common";
-import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
-import { MemberAvatar } from "@/components/ui/member-avatar";
+import { MemberProfileHero, MemberSidebar, useMemberProfile } from "@/features/members";
 import { useActor, useLocale, useMember } from "@/hooks";
 import { ApiError } from "@/lib/api-error";
 import { localePath } from "@/lib/i18n";
@@ -26,33 +14,7 @@ export default function MemberDetailPage() {
   const { username } = useParams<{ username: string }>();
   const { member: profile, isLoading, error } = useMember(username);
   const { actor } = useActor();
-  const [copied, setCopied] = useState(false);
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: profile?.displayName ?? "Member Profile",
-          url,
-        });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-        console.error("Native profile sharing failed; falling back to clipboard", error);
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Copying the profile URL failed", error);
-    }
-  };
+  const { isOwner, isPending, handleShare, copied } = useMemberProfile(profile, actor);
 
   if (error instanceof ApiError && error.status === 404) {
     notFound();
@@ -73,8 +35,6 @@ export default function MemberDetailPage() {
     );
   }
 
-  const isOwner = actor !== null && actor.member.githubId === profile.githubId;
-  const isPending = actor !== null && isOwner && actor.member.status !== "approved";
   const hasBio = profile.bio !== null;
   const hasSidebar =
     profile.skills.length > 0 || profile.affiliation !== null || profile.links.length > 0;
@@ -101,101 +61,18 @@ export default function MemberDetailPage() {
         </div>
       </div>
 
-      {/* Member Profile Hero Header */}
-      <div className="border-b border-border bg-muted/30 px-4 py-8 dark:bg-card">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-6">
-          <div className="flex min-w-0 flex-wrap items-center gap-5">
-            <div className="relative">
-              <div className="overflow-hidden rounded-full border border-border shadow-xs">
-                <MemberAvatar member={profile} size={72} />
-              </div>
-              <CheckCircleIcon className="absolute -bottom-1 -right-1 size-5 rounded-full bg-primary text-primary-foreground fill-primary" />
-            </div>
+      <MemberProfileHero
+        profile={profile}
+        isOwner={isOwner}
+        actor={actor}
+        copied={copied}
+        onShare={handleShare}
+        locale={locale}
+        dict={dict}
+      />
 
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                  {profile.displayName}
-                </h1>
-                {/* The public member DTO carries no status or priority, so the
-                    only status we can state here is the viewer's own. Everyone
-                    listed in the directory is by definition approved. */}
-                {isOwner ? (
-                  <Chip tone={actor.member.status === "approved" ? "success" : "attention"}>
-                    {dict.profile.statusShort[actor.member.status]}
-                  </Chip>
-                ) : null}
-              </div>
-
-              <div className="mt-2 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
-                {profile.headline !== null || profile.affiliation !== null ? (
-                  <span className="flex items-center gap-1.5">
-                    <BriefcaseIcon className="size-4 shrink-0 text-muted-foreground" />
-                    <span>{profile.headline ?? profile.affiliation}</span>
-                  </span>
-                ) : null}
-
-                {profile.location !== null ? (
-                  <span className="flex items-center gap-1.5">
-                    <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
-                    <span>{profile.location}</span>
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isOwner ? (
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<Link href={localePath(locale, "/profile")} />}
-                className="gap-2 cursor-pointer"
-              >
-                <PencilIcon className="size-4" />
-                <span>{dict.profile.title}</span>
-              </Button>
-            ) : null}
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="icon-sm"
-                aria-label="Share profile"
-                onClick={handleShare}
-                className="cursor-pointer"
-              >
-                <ShareNetworkIcon className="size-4" />
-              </Button>
-              {copied ? (
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-foreground px-2 py-0.5 text-[11px] font-semibold text-background shadow-xs whitespace-nowrap z-50">
-                  Copied link!
-                </span>
-              ) : null}
-            </div>
-            <Button
-              variant="default"
-              size="sm"
-              render={
-                <a
-                  href={`https://github.com/${profile.githubUsername}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
-              className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <GithubLogoIcon className="size-4" />
-              <span>@{profile.githubUsername}</span>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
       <div className="mx-auto max-w-[1200px] px-4 py-8">
-        {isPending ? (
+        {isPending && actor !== null ? (
           <StateBanner tone="attention" role="status" className="mb-6">
             {dict.profile.status[actor.member.status]}
           </StateBanner>
@@ -216,58 +93,14 @@ export default function MemberDetailPage() {
             </div>
           ) : null}
 
-          {/* Right Sidebar Column */}
           {hasSidebar ? (
-            <div className={`space-y-6 ${hasBio ? "" : "max-w-sm"}`}>
-              {/* Skills Card */}
-              {profile.skills.length > 0 ? (
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="mb-3 text-sm font-bold text-foreground">Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="rounded-md border border-border bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Affiliation Card */}
-              {profile.affiliation !== null ? (
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="mb-3 text-sm font-bold text-foreground">Affiliation</h3>
-                  <div className="space-y-2.5 text-sm text-foreground">
-                    <div className="flex items-center gap-2">
-                      <BuildingsIcon className="size-4 text-muted-foreground" />
-                      <span className="font-medium">{profile.affiliation}</span>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Links Card */}
-              {profile.links.length > 0 ? (
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="mb-3 text-sm font-bold text-foreground">Links</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.links.map((link) => (
-                      <a
-                        key={link}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="max-w-full break-all rounded-md border border-border bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                      >
-                        {link.replace(/^https?:\/\//, "")}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
+            <div className={hasBio ? "" : "max-w-sm"}>
+              <MemberSidebar
+                skills={profile.skills as string[]}
+                affiliation={profile.affiliation}
+                location={profile.location}
+                links={profile.links}
+              />
             </div>
           ) : null}
         </div>

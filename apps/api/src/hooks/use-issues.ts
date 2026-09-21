@@ -15,11 +15,13 @@ function issuesKey(query: IssuesQuery): string {
     page: String(query.page),
     perPage: String(query.perPage),
   });
-  if (query.q !== undefined) {
-    search.set("q", query.q);
+  const q = query.q?.trim();
+  const label = query.label?.trim();
+  if (q) {
+    search.set("q", q);
   }
-  if (query.label !== undefined) {
-    search.set("label", query.label);
+  if (label) {
+    search.set("label", label);
   }
   return `/v1/project/issues?${search.toString()}`;
 }
@@ -27,8 +29,17 @@ function issuesKey(query: IssuesQuery): string {
 /** Paginated, filterable issue list for the given query. Pass `enabled: false`
  * to skip fetching — e.g. while the parent project hasn't resolved yet. */
 export function useProjectIssues(query: IssuesQuery, enabled = true) {
-  const { data, error, isLoading } = useSWR<IssueList>(enabled ? issuesKey(query) : null, () =>
-    apiClient.listIssues(query),
+  const q = query.q?.trim() || undefined;
+  const label = query.label?.trim() || undefined;
+  const cleanQuery: IssuesQuery = {
+    page: query.page,
+    perPage: query.perPage,
+    ...(q !== undefined ? { q } : {}),
+    ...(label !== undefined ? { label } : {}),
+  };
+
+  const { data, error, isLoading } = useSWR<IssueList>(enabled ? issuesKey(cleanQuery) : null, () =>
+    apiClient.listIssues(cleanQuery),
   );
   return {
     issues: data?.issues ?? [],
